@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "github": {
+    "silent": true
+  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}

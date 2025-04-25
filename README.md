@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Multiplayer Checkers Game
 
-## Getting Started
+A fully functional and professional Multiplayer Checkers Game using Next.js, Firebase, and Tailwind CSS.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Real-time Multiplayer**: Play checkers with friends online in real-time
+- **User Authentication**: Login with Google or Email/Password using Firebase Auth
+- **Betting System**: Bet with virtual currency for more exciting gameplay
+- **In-game Chat**: Chat with your opponent during the game
+- **Responsive Design**: Play on desktop or mobile devices
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React, Tailwind CSS, ShadCN UI
+- **Backend**: Firebase (Firestore, Authentication)
+- **Deployment**: Vercel
+
+## Setup Instructions
+
+### Local Development
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a Firebase project:
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Create a new project
+   - Enable Authentication (Google and Email/Password)
+   - Create a Firestore database (start in test mode)
+   - Register a web app in Project Settings
+   - Copy the Firebase config
+
+4. Set up environment variables:
+   - Copy `.env.local.example` to `.env.local`
+   - Fill in the Firebase configuration values:
+     ```
+     NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+     NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+     NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+     ```
+
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+   
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+### Deploying to Vercel
+
+1. Push your code to a GitHub repository
+
+2. Connect your Vercel account to GitHub
+
+3. Import the repository in Vercel
+
+4. Add environment variables:
+   - Add all the Firebase configuration variables from your `.env.local` file
+   - You can set up different environments for production, preview, and development
+
+5. Deploy!
+
+## Project Structure
+
+```
+checkers-game/
+├── public/            # Static assets
+├── src/
+│   ├── app/           # Next.js App Router
+│   │   ├── game/      # Local game route
+│   │   ├── multiplayer/ # Multiplayer game routes
+│   │   └── page.tsx   # Home page
+│   ├── components/    # React components
+│   │   ├── auth/      # Authentication components
+│   │   ├── game/      # Game-related components
+│   │   └── ui/        # ShadCN UI components
+│   ├── context/       # React context providers
+│   ├── hooks/         # Custom React hooks
+│   ├── lib/           # Utility functions and libraries
+│   └── types/         # TypeScript type definitions
+├── .env.local         # Environment variables (not in git)
+├── components.json    # ShadCN UI configuration
+└── tailwind.config.ts # Tailwind CSS configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Firebase Firestore Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+gameRooms/
+├── [roomId]/
+│   ├── blackPlayerId: string
+│   ├── whitePlayerId: string | null
+│   ├── status: 'waiting' | 'playing' | 'finished'
+│   ├── currentTurn: 'black' | 'white'
+│   ├── board: Array<Array<Piece | null>>
+│   ├── createdAt: timestamp
+│   ├── lastMoveAt: timestamp
+│   ├── winner: 'black' | 'white' | null
+│   └── betAmount: number
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+messages/
+├── [messageId]/
+│   ├── gameRoomId: string
+│   ├── senderId: string
+│   ├── senderName: string
+│   ├── text: string
+│   └── timestamp: timestamp
+```
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
