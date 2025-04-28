@@ -98,10 +98,10 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
   }, [gameRoomId]);
 
   // Create a new game room
-  const createRoom = async (betAmount: number = 0) => {
+  const createRoom = async (betAmount: number = 0, gameType: 'checkers' | 'tetris' = 'checkers') => {
     setLoading(true);
     try {
-      const roomId = await createGameRoom(betAmount);
+      const roomId = await createGameRoom(betAmount, gameType);
       setPlayerColor('black');
       if (betAmount > 0) {
         placeBet(betAmount);

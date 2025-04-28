@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Board } from '@/components/game/Board';
+import TetrisGame from '@/components/game/TetrisGame';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BettingPanel } from '@/components/game/BettingPanel';
 import { useGame } from '@/hooks/useGame';
 import { useBetting } from '@/context/BettingContext';
@@ -8,21 +11,37 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function GamePage() {
+  const [gameType, setGameType] = useState<'checkers' | 'tetris'>('checkers');
   const game = useGame();
   const betting = useBetting();
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
       <div className="flex flex-col items-center">
-        <div className="w-full flex justify-between items-center mb-6">
-          <Link href="/" className="text-blue-600 hover:text-blue-800 flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span>Back to Home</span>
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-center">Checkers Game</h1>
-          <div className="w-24"></div> {/* Spacer for centering */}
+          <div className="w-full flex flex-col items-center gap-4 mb-6">
+            <div className="w-full flex justify-between items-center">
+              <Link href="/" className="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Home</span>
+              </Link>
+              <div className="w-24"></div> {/* Spacer for centering */}
+            </div>
+            
+            <Select value={gameType} onValueChange={(v: 'checkers' | 'tetris') => setGameType(v)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select game type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="checkers">Checkers</SelectItem>
+                <SelectItem value="tetris">Tetris</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <h1 className="text-2xl md:text-3xl font-bold text-center">
+              {gameType === 'tetris' ? 'Tetris' : 'Checkers'} Game
+            </h1>
         </div>
         
         {game.winner ? (
@@ -72,7 +91,7 @@ export default function GamePage() {
         
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           <div className="lg:col-span-2 order-2 lg:order-1">
-            <Board />
+            {gameType === 'tetris' ? <TetrisGame /> : <Board />}
           </div>
           <div className="order-1 lg:order-2">
             <BettingPanel />

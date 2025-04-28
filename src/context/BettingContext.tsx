@@ -27,10 +27,13 @@ export function BettingProvider({ children }: { children: ReactNode }) {
   };
 
   const distributeWinnings = (winner: 'player' | 'opponent') => {
+    const houseFee = currentBet * 0.10;
+    const winnings = currentBet - houseFee;
+    
     if (winner === 'player') {
-      setPlayerBalance(b => b + currentBet);
+      setPlayerBalance(b => b + winnings);
     } else {
-      setOpponentBalance(b => b + currentBet);
+      setOpponentBalance(b => b + winnings);
     }
     setCurrentBet(0);
   };

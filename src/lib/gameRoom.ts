@@ -5,6 +5,7 @@ import {
   updateDoc, 
   onSnapshot, 
   getDocs, 
+  getDoc,
   query, 
   where, 
   serverTimestamp, 
@@ -28,6 +29,17 @@ export interface GameRoom {
   lastMoveAt: Timestamp;
   winner: PieceColor | null;
   betAmount: number;
+  gameType: 'checkers' | 'tetris';
+  
+  // Tetris-specific fields
+  blackPlayerBoard?: number[][];
+  whitePlayerBoard?: number[][];
+  blackPlayerScore?: number;
+  whitePlayerScore?: number;
+  currentPiece?: {
+    shape: number[][];
+    position: {x: number, y: number};
+  };
 }
 
 export interface Message {
@@ -40,7 +52,7 @@ export interface Message {
 }
 
 // Create a new game room
-export const createGameRoom = async (betAmount: number = 0): Promise<string> => {
+export const createGameRoom = async (betAmount: number = 0, gameType: 'checkers' | 'tetris' = 'checkers'): Promise<string> => {
   // Ensure the user is signed in
   if (!auth.currentUser) {
     await signInAnonymously(auth);
@@ -59,7 +71,8 @@ export const createGameRoom = async (betAmount: number = 0): Promise<string> => 
     createdAt: serverTimestamp() as Timestamp,
     lastMoveAt: serverTimestamp() as Timestamp,
     winner: null,
-    betAmount
+    betAmount,
+    gameType
   };
 
   await setDoc(newGameRoomRef, gameRoom);
@@ -111,7 +124,15 @@ export const makeMove = async (
   gameRoomId: string, 
   board: Board, 
   currentTurn: PieceColor,
-  winner: PieceColor | null = null
+  winner: PieceColor | null = null,
+  tetrisState?: {
+    playerBoard: number[][];
+    playerScore: number;
+    currentPiece?: {
+      shape: number[][];
+      position: {x: number, y: number};
+    };
+  }
 ): Promise<void> => {
   const gameRoomRef = doc(db, 'gameRooms', gameRoomId);
   
@@ -124,6 +145,20 @@ export const makeMove = async (
   if (winner) {
     updateData.winner = winner;
     updateData.status = 'finished';
+  }
+
+  if (tetrisState) {
+    const isBlackPlayer = auth.currentUser?.uid === (await getDoc(gameRoomRef)).data()?.blackPlayerId;
+    if (isBlackPlayer) {
+      updateData.blackPlayerBoard = tetrisState.playerBoard;
+      updateData.blackPlayerScore = tetrisState.playerScore;
+    } else {
+      updateData.whitePlayerBoard = tetrisState.playerBoard;
+      updateData.whitePlayerScore = tetrisState.playerScore;
+    }
+    if (tetrisState.currentPiece) {
+      updateData.currentPiece = tetrisState.currentPiece;
+    }
   }
   
   await updateDoc(gameRoomRef, updateData);

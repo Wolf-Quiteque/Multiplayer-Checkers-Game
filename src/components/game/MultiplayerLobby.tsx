@@ -37,9 +37,11 @@ export function MultiplayerLobby() {
   } = useMultiplayerGame();
 
   // Create a new game room and redirect to it
+  const [gameType, setGameType] = useState<'checkers' | 'tetris'>('checkers');
+
   const handleCreateRoom = async () => {
     const bet = customBet ? parseInt(customBet) : betAmount;
-    const roomId = await createRoom(bet);
+    const roomId = await createRoom(bet, gameType);
     if (roomId) {
       router.push(`/multiplayer/${roomId}`);
     }
@@ -75,6 +77,20 @@ export function MultiplayerLobby() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Bet Amount ($)</label>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Game Type</label>
+                  <Select defaultValue="checkers">
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Select game type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="checkers">Checkers</SelectItem>
+                      <SelectItem value="tetris">Tetris</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <Select
                 value={customBet ? 'custom' : betAmount.toString()}
                 onValueChange={(value: string) => {
