@@ -3,8 +3,8 @@
 import { MultiplayerGame } from '@/components/game/MultiplayerGame';
 import Link from 'next/link';
 
-export default function MultiplayerGamePage({ params }: { params: { roomId: string } }) {
-  const { roomId } = params;
+export default function MultiplayerGamePage({ params }: { params: Params }) {
+  const { roomId } = await params;
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
