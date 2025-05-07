@@ -3,13 +3,14 @@
 import { MultiplayerGame } from '@/components/game/MultiplayerGame';
 import Link from 'next/link';
 
-export default async function MultiplayerGamePage({
-  params,
-}: {
-  params: { roomId: string };
-}) {
-  const { roomId } = params;
+interface PageProps {
+  params: {
+    roomId: string;
+  };
+}
 
+export default function MultiplayerGamePage({ params }: PageProps) {
+  const { roomId } = params;
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
