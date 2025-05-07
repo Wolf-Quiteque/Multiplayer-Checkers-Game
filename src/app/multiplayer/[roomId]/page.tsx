@@ -3,7 +3,7 @@
 import { MultiplayerGame } from '@/components/game/MultiplayerGame';
 import Link from 'next/link';
 
-export default function MultiplayerGamePage({ params }: { params: Params }) {
+export default async function MultiplayerGamePage({ params }: { params: Params }) {
   const { roomId } = await params;
 
   return (
