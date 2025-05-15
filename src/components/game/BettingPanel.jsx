@@ -8,8 +8,8 @@ import { useState } from 'react';
 const betAmounts = [100, 500, 1000, 2000];
 
 export function BettingPanel() {
-  const { 
-    playerBalance, 
+  const {
+    playerBalance,
     opponentBalance,
     currentBet,
     placeBet
@@ -27,7 +27,7 @@ export function BettingPanel() {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4 text-center">Game Betting</h2>
-      
+
       <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg mb-4">
         <div className="text-center">
           <h3 className="text-sm text-gray-500">Your Balance</h3>
@@ -52,7 +52,7 @@ export function BettingPanel() {
             <h3 className="text-sm text-gray-500 mb-1">Place Your Bet</h3>
             <p className="text-xs text-gray-500 mb-3">Select an amount to bet before starting the game</p>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-2 mb-4">
             {betAmounts.map(amount => (
               <Button
@@ -66,14 +66,14 @@ export function BettingPanel() {
               </Button>
             ))}
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100 to-transparent h-px"></div>
             <div className="flex justify-center -mt-3">
               <span className="bg-white px-2 text-xs text-gray-400">OR</span>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-2 mt-4">
             <Input
               type="number"
@@ -84,11 +84,11 @@ export function BettingPanel() {
               min="1"
               max={Math.min(playerBalance, opponentBalance)}
             />
-            <Button 
+            <Button
               onClick={handleCustomBet}
               disabled={
-                !customAmount || 
-                isNaN(parseInt(customAmount)) || 
+                !customAmount ||
+                isNaN(parseInt(customAmount)) ||
                 playerBalance < parseInt(customAmount) ||
                 opponentBalance < parseInt(customAmount)
               }

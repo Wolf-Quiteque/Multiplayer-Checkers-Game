@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBetting } from '@/context/BettingContext';
-import { subscribeToGameRoom, makeMove, GameRoom } from '@/lib/gameRoom';
+import { subscribeToGameRoom, makeMove } from '@/lib/gameRoom';
 import { subscribeToMessages, sendMessage } from '@/lib/gameRoom';
 import { auth } from '@/lib/firebase';
 
-export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
+export default function MultiplayerTetris({ roomId }) {
   if (!roomId) {
     return (
       <div className="flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Error: Missing Room ID</h2>
         <p className="text-xl mb-6">Please join a valid game room</p>
-        <Button 
+        <Button
           onClick={() => window.location.href = '/multiplayer'}
           className="h-12 px-8 text-lg"
         >
@@ -34,8 +34,8 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
   const [gameOver, setGameOver] = useState(false);
   const { currentBet, distributeWinnings } = useBetting();
   const [isGameRunning, setIsGameRunning] = useState(false);
-  const [gameRoom, setGameRoom] = useState<GameRoom | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [gameRoom, setGameRoom] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const unsubscribe = subscribeToGameRoom(roomId, (room) => {
@@ -44,7 +44,7 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
         const isBlackPlayer = auth.currentUser?.uid === room.blackPlayerId;
         const opponentBoard = isBlackPlayer ? room.whitePlayerBoard : room.blackPlayerBoard;
         const opponentScore = isBlackPlayer ? room.whitePlayerScore : room.blackPlayerScore;
-        
+
         if (opponentBoard) setOpponentScore(opponentScore || 0);
       }
     });
@@ -72,7 +72,7 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
       playerBoard: board,
       playerScore: score
     });
-    
+
     const isWinner = score > opponentScore;
     distributeWinnings(isWinner ? 'player' : 'opponent');
   };
@@ -100,7 +100,7 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
           <h2 className="text-2xl font-bold">Opponent: {opponentScore}</h2>
           {currentBet > 0 && <h3 className="text-xl">Bet: ${currentBet}</h3>}
         </div>
-        
+
         {!isGameRunning ? (
           <Button onClick={startGame} className="h-12 px-6">Start Game</Button>
         ) : (
@@ -112,7 +112,7 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
         <div className="border-4 border-blue-200 bg-blue-50 p-2 rounded" style={{ width: '200px', height: '400px' }}>
           {board.map((row, y) => (
             <div key={y} className="flex">
-              {row.map((cell: number, x: number) => (
+              {row.map((cell, x) => (
                 <div key={x} className={`w-8 h-8 border ${cell ? 'bg-blue-500' : 'bg-white'}`} />
               ))}
             </div>
@@ -122,7 +122,7 @@ export default function MultiplayerTetris({ roomId }: { roomId?: string }) {
         <div className="border-4 border-red-200 bg-red-50 p-2 rounded" style={{ width: '200px', height: '400px' }}>
           {gameRoom?.whitePlayerBoard?.map((row, y) => (
             <div key={y} className="flex">
-              {row.map((cell: number, x: number) => (
+              {row.map((cell, x) => (
                 <div key={x} className={`w-8 h-8 border ${cell ? 'bg-red-500' : 'bg-white'}`} />
               ))}
             </div>

@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,7 +25,7 @@ export function MultiplayerLobby() {
   const router = useRouter();
   const [betAmount, setBetAmount] = useState(100);
   const [customBet, setCustomBet] = useState('');
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
 
   const {
     availableRooms,
@@ -37,7 +37,7 @@ export function MultiplayerLobby() {
   } = useMultiplayerGame();
 
   // Create a new game room and redirect to it
-  const [gameType, setGameType] = useState<'checkers' | 'tetris'>('checkers');
+  const [gameType, setGameType] = useState('checkers');
 
   const handleCreateRoom = async () => {
     const bet = customBet ? parseInt(customBet) : betAmount;
@@ -50,7 +50,7 @@ export function MultiplayerLobby() {
   // Join an existing game room
   const handleJoinRoom = async () => {
     if (!selectedRoomId) return;
-    
+
     const success = await joinRoom(selectedRoomId);
     if (success) {
       router.push(`/multiplayer/${selectedRoomId}`);
@@ -93,7 +93,7 @@ export function MultiplayerLobby() {
               </div>
               <Select
                 value={customBet ? 'custom' : betAmount.toString()}
-                onValueChange={(value: string) => {
+                onValueChange={(value) => {
                   if (value === 'custom') {
                     setBetAmount(0);
                   } else {
@@ -115,13 +115,13 @@ export function MultiplayerLobby() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {customBet || betAmount === 0 ? (
               <div>
                 <label className="block text-sm font-medium mb-2">Custom Amount</label>
-                <Input 
-                  type="number" 
-                  placeholder="Enter amount" 
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
                   value={customBet}
                   onChange={e => setCustomBet(e.target.value)}
                   className="h-12"
@@ -131,16 +131,16 @@ export function MultiplayerLobby() {
           </div>
         </CardContent>
         <CardFooter className="bg-gray-50 border-t pt-4">
-          <Button 
-            onClick={handleCreateRoom} 
-            className="w-full h-12 text-lg font-medium" 
+          <Button
+            onClick={handleCreateRoom}
+            className="w-full h-12 text-lg font-medium"
             disabled={loading}
           >
             {loading ? 'Creating...' : 'Create Game'}
           </Button>
         </CardFooter>
       </Card>
-      
+
       <Card className="border border-green-100 shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b">
           <div className="flex items-center gap-2">
@@ -159,10 +159,10 @@ export function MultiplayerLobby() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-medium">Available Games</h3>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={refreshRooms} 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refreshRooms}
                 disabled={loading}
                 className="flex items-center gap-1"
               >
@@ -172,13 +172,13 @@ export function MultiplayerLobby() {
                 {loading ? 'Refreshing...' : 'Refresh'}
               </Button>
             </div>
-            
+
             {error && (
               <div className="p-3 bg-red-50 text-red-600 rounded-md border border-red-100">
                 <p className="text-sm">{error}</p>
               </div>
             )}
-            
+
             {availableRooms.length === 0 ? (
               <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-md border border-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -190,8 +190,8 @@ export function MultiplayerLobby() {
             ) : (
               <div className="space-y-2 max-h-[300px] overflow-y-auto touch-manipulation p-1">
                 {availableRooms.map(room => (
-                  <div 
-                    key={room.id} 
+                  <div
+                    key={room.id}
                     className={`
                       p-3 border rounded-md cursor-pointer transition-all duration-200
                       ${selectedRoomId === room.id ? 'border-green-500 bg-green-50 shadow-md transform scale-[1.02]' : 'hover:bg-gray-50 active:bg-gray-100'}
@@ -215,9 +215,9 @@ export function MultiplayerLobby() {
           </div>
         </CardContent>
         <CardFooter className="bg-gray-50 border-t pt-4">
-          <Button 
-            onClick={handleJoinRoom} 
-            className="w-full h-12 text-lg font-medium bg-green-600 hover:bg-green-700" 
+          <Button
+            onClick={handleJoinRoom}
+            className="w-full h-12 text-lg font-medium bg-green-600 hover:bg-green-700"
             disabled={loading || !selectedRoomId}
           >
             {loading ? 'Joining...' : 'Join Selected Game'}

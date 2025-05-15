@@ -14,7 +14,7 @@ export const Board = () => {
         row.map((square, colIndex) => {
           const isBlack = (rowIndex + colIndex) % 2 === 1;
           const isSelected = selectedPiece?.row === rowIndex && selectedPiece?.col === colIndex;
-          const isValidMove = validMoves.some(move => 
+          const isValidMove = validMoves.some(move =>
             move.row === rowIndex && move.col === colIndex
           );
 

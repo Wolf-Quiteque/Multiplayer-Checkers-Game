@@ -1,58 +1,22 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  updateDoc, 
-  onSnapshot, 
-  getDocs, 
+import {
+  collection,
+  doc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  getDocs,
   getDoc,
-  query, 
-  where, 
-  serverTimestamp, 
+  query,
+  where,
+  serverTimestamp,
   deleteDoc,
-  Timestamp 
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { Board, PieceColor } from '@/types/game';
 import { initialBoard } from './game';
 
-// Game room types
-export interface GameRoom {
-  id: string;
-  blackPlayerId: string;
-  whitePlayerId: string | null;
-  status: 'waiting' | 'playing' | 'finished';
-  currentTurn: PieceColor;
-  board: Board;
-  createdAt: Timestamp;
-  lastMoveAt: Timestamp;
-  winner: PieceColor | null;
-  betAmount: number;
-  gameType: 'checkers' | 'tetris';
-  
-  // Tetris-specific fields
-  blackPlayerBoard?: number[][];
-  whitePlayerBoard?: number[][];
-  blackPlayerScore?: number;
-  whitePlayerScore?: number;
-  currentPiece?: {
-    shape: number[][];
-    position: {x: number, y: number};
-  };
-}
-
-export interface Message {
-  id: string;
-  gameRoomId: string;
-  senderId: string;
-  senderName: string;
-  text: string;
-  timestamp: Timestamp;
-}
-
 // Create a new game room
-export const createGameRoom = async (betAmount: number = 0, gameType: 'checkers' | 'tetris' = 'checkers'): Promise<string> => {
+export const createGameRoom = async (betAmount = 0, gameType = 'checkers') => {
   // Ensure the user is signed in
   if (!auth.currentUser) {
     await signInAnonymously(auth);
@@ -62,14 +26,14 @@ export const createGameRoom = async (betAmount: number = 0, gameType: 'checkers'
   const newGameRoomRef = doc(gameRoomsRef);
   const gameRoomId = newGameRoomRef.id;
 
-  const gameRoom: Omit<GameRoom, 'id'> = {
-    blackPlayerId: auth.currentUser!.uid,
+  const gameRoom = {
+    blackPlayerId: auth.currentUser.uid,
     whitePlayerId: null,
     status: 'waiting',
     currentTurn: 'black',
     board: initialBoard,
-    createdAt: serverTimestamp() as Timestamp,
-    lastMoveAt: serverTimestamp() as Timestamp,
+    createdAt: serverTimestamp(),
+    lastMoveAt: serverTimestamp(),
     winner: null,
     betAmount,
     gameType
@@ -80,17 +44,17 @@ export const createGameRoom = async (betAmount: number = 0, gameType: 'checkers'
 };
 
 // Join an existing game room
-export const joinGameRoom = async (gameRoomId: string): Promise<boolean> => {
+export const joinGameRoom = async (gameRoomId) => {
   // Ensure the user is signed in
   if (!auth.currentUser) {
     await signInAnonymously(auth);
   }
 
   const gameRoomRef = doc(db, 'gameRooms', gameRoomId);
-  
+
   try {
     await updateDoc(gameRoomRef, {
-      whitePlayerId: auth.currentUser!.uid,
+      whitePlayerId: auth.currentUser.uid,
       status: 'playing',
       lastMoveAt: serverTimestamp()
     });
@@ -102,53 +66,47 @@ export const joinGameRoom = async (gameRoomId: string): Promise<boolean> => {
 };
 
 // Get available game rooms
-export const getAvailableGameRooms = async (): Promise<GameRoom[]> => {
+export const getAvailableGameRooms = async () => {
   const gameRoomsRef = collection(db, 'gameRooms');
   const q = query(
-    gameRoomsRef, 
+    gameRoomsRef,
     where('status', '==', 'waiting')
   );
-  
+
   const querySnapshot = await getDocs(q);
-  const rooms: GameRoom[] = [];
-  
+  const rooms = [];
+
   querySnapshot.forEach((doc) => {
-    rooms.push({ id: doc.id, ...doc.data() } as GameRoom);
+    rooms.push({ id: doc.id, ...doc.data() });
   });
-  
+
   return rooms;
 };
 
 // Make a move
 export const makeMove = async (
-  gameRoomId: string, 
-  board: Board, 
-  currentTurn: PieceColor,
-  winner: PieceColor | null = null,
-  tetrisState?: {
-    playerBoard: number[][];
-    playerScore: number;
-    currentPiece?: {
-      shape: number[][];
-      position: {x: number, y: number};
-    };
-  }
-): Promise<void> => {
+  gameRoomId,
+  board,
+  currentTurn,
+  winner = null,
+  tetrisState
+) => {
   const gameRoomRef = doc(db, 'gameRooms', gameRoomId);
-  
-  const updateData: any = {
+
+  const updateData = {
     board,
     currentTurn,
     lastMoveAt: serverTimestamp()
   };
-  
+
   if (winner) {
     updateData.winner = winner;
     updateData.status = 'finished';
   }
 
   if (tetrisState) {
-    const isBlackPlayer = auth.currentUser?.uid === (await getDoc(gameRoomRef)).data()?.blackPlayerId;
+    const gameRoomDoc = await getDoc(gameRoomRef);
+    const isBlackPlayer = auth.currentUser?.uid === gameRoomDoc.data()?.blackPlayerId;
     if (isBlackPlayer) {
       updateData.blackPlayerBoard = tetrisState.playerBoard;
       updateData.blackPlayerScore = tetrisState.playerScore;
@@ -160,31 +118,31 @@ export const makeMove = async (
       updateData.currentPiece = tetrisState.currentPiece;
     }
   }
-  
+
   await updateDoc(gameRoomRef, updateData);
 };
 
 // Subscribe to game room updates
 export const subscribeToGameRoom = (
-  gameRoomId: string, 
-  callback: (gameRoom: GameRoom) => void
+  gameRoomId,
+  callback
 ) => {
   const gameRoomRef = doc(db, 'gameRooms', gameRoomId);
-  
+
   return onSnapshot(gameRoomRef, (docSnapshot) => {
     if (docSnapshot.exists()) {
       const data = docSnapshot.data();
-      callback({ id: docSnapshot.id, ...data } as GameRoom);
+      callback({ id: docSnapshot.id, ...data });
     }
   });
 };
 
 // Send a chat message
 export const sendMessage = async (
-  gameRoomId: string, 
-  text: string,
-  senderName: string = 'Player'
-): Promise<void> => {
+  gameRoomId,
+  text,
+  senderName = 'Player'
+) => {
   // Ensure the user is signed in
   if (!auth.currentUser) {
     await signInAnonymously(auth);
@@ -192,44 +150,44 @@ export const sendMessage = async (
 
   const messagesRef = collection(db, 'messages');
   const newMessageRef = doc(messagesRef);
-  
-  const message: Omit<Message, 'id'> = {
+
+  const message = {
     gameRoomId,
-    senderId: auth.currentUser!.uid,
+    senderId: auth.currentUser.uid,
     senderName,
     text,
-    timestamp: serverTimestamp() as Timestamp
+    timestamp: serverTimestamp()
   };
-  
+
   await setDoc(newMessageRef, message);
 };
 
 // Subscribe to chat messages
 export const subscribeToMessages = (
-  gameRoomId: string, 
-  callback: (messages: Message[]) => void
+  gameRoomId,
+  callback
 ) => {
   const messagesRef = collection(db, 'messages');
   const q = query(
-    messagesRef, 
+    messagesRef,
     where('gameRoomId', '==', gameRoomId)
   );
-  
+
   return onSnapshot(q, (querySnapshot) => {
-    const messages: Message[] = [];
+    const messages = [];
     querySnapshot.forEach((doc) => {
-      messages.push({ id: doc.id, ...doc.data() } as Message);
+      messages.push({ id: doc.id, ...doc.data() });
     });
-    
+
     // Sort messages by timestamp
     messages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-    
+
     callback(messages);
   });
 };
 
 // Leave/delete a game room
-export const leaveGameRoom = async (gameRoomId: string): Promise<void> => {
+export const leaveGameRoom = async (gameRoomId) => {
   const gameRoomRef = doc(db, 'gameRooms', gameRoomId);
   await deleteDoc(gameRoomRef);
 };

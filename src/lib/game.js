@@ -1,6 +1,4 @@
-import { Board, Position, PieceColor } from '@/types/game';
-
-export const initialBoard: Board = Array(8).fill(null).map((_, row) => {
+export const initialBoard = Array(8).fill(null).map((_, row) => {
   return Array(8).fill(null).map((_, col) => {
     // Only place pieces on black squares
     if ((row + col) % 2 !== 1) return null;
@@ -20,15 +18,15 @@ export const initialBoard: Board = Array(8).fill(null).map((_, row) => {
   });
 });
 
-export const getValidMoves = (row: number, col: number, board: Board) => {
+export const getValidMoves = (row, col, board) => {
   const piece = board[row][col];
   if (!piece) return [];
 
-  const moves: Position[] = [];
-  const captureMoves: Position[] = [];
+  const moves = [];
+  const captureMoves = [];
   const direction = piece.color === 'black' ? 1 : -1;
 
-  const checkCaptures = (r: number, c: number, dirRow: number, dirCol: number, isKing = false) => {
+  const checkCaptures = (r, c, dirRow, dirCol, isKing = false) => {
     const jumpedRow = r + dirRow;
     const jumpedCol = c + dirCol;
     const landRow = r + dirRow * 2;
@@ -100,7 +98,7 @@ export const getValidMoves = (row: number, col: number, board: Board) => {
   return moves;
 };
 
-export const checkWinCondition = (board: Board): PieceColor | null => {
+export const checkWinCondition = (board) => {
   let blackPieces = 0;
   let whitePieces = 0;
 

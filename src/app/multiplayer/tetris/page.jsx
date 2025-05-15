@@ -6,7 +6,7 @@ import { BettingProvider } from '@/context/BettingContext';
 
 export default function TetrisMultiplayerPage() {
   const params = useParams();
-  const roomId = params.roomId as string;
+  const roomId = params.roomId;
 
   return (
     <BettingProvider>

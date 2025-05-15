@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function GamePage() {
-  const [gameType, setGameType] = useState<'checkers' | 'tetris'>('checkers');
+  const [gameType, setGameType] = useState('checkers');
   const game = useGame();
   const betting = useBetting();
 
@@ -28,8 +28,8 @@ export default function GamePage() {
               </Link>
               <div className="w-24"></div> {/* Spacer for centering */}
             </div>
-            
-            <Select value={gameType} onValueChange={(v: 'checkers' | 'tetris') => setGameType(v)}>
+
+            <Select value={gameType} onValueChange={(v) => setGameType(v)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select game type" />
               </SelectTrigger>
@@ -38,12 +38,12 @@ export default function GamePage() {
                 <SelectItem value="tetris">Tetris</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <h1 className="text-2xl md:text-3xl font-bold text-center">
               {gameType === 'tetris' ? 'Tetris' : 'Checkers'} Game
             </h1>
         </div>
-        
+
         {game.winner ? (
           <div className="mb-6 w-full">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center shadow-md">
@@ -79,7 +79,7 @@ export default function GamePage() {
                   <p className="font-bold capitalize">{game.currentPlayer}</p>
                 </div>
               </div>
-              
+
               {game.selectedPiece && (
                 <div className="bg-yellow-50 px-3 py-1 rounded-md text-sm">
                   <p className="text-yellow-700">Piece selected</p>
@@ -88,7 +88,7 @@ export default function GamePage() {
             </div>
           </div>
         )}
-        
+
         <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           <div className="lg:col-span-2 order-2 lg:order-1">
             {gameType === 'tetris' ? <TetrisGame /> : <Board />}

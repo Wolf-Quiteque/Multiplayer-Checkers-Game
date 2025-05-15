@@ -1,33 +1,30 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Board, PieceColor, Position } from '@/types/game';
 import { getValidMoves, checkWinCondition } from '../lib/game';
 import { useBetting } from '@/context/BettingContext';
 import { auth } from '../lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { 
-  GameRoom, 
-  Message, 
-  createGameRoom, 
-  joinGameRoom, 
-  makeMove, 
-  subscribeToGameRoom, 
-  subscribeToMessages, 
+import {
+  createGameRoom,
+  joinGameRoom,
+  makeMove,
+  subscribeToGameRoom,
+  subscribeToMessages,
   sendMessage,
   leaveGameRoom,
-  getAvailableGameRooms 
+  getAvailableGameRooms
 } from '../lib/gameRoom';
 
-export const useMultiplayerGame = (gameRoomId?: string) => {
-  const [gameRoom, setGameRoom] = useState<GameRoom | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [playerColor, setPlayerColor] = useState<PieceColor | null>(null);
-  const [selectedPiece, setSelectedPiece] = useState<Position | null>(null);
-  const [validMoves, setValidMoves] = useState<Position[]>([]);
-  const [availableRooms, setAvailableRooms] = useState<GameRoom[]>([]);
+export const useMultiplayerGame = (gameRoomId) => {
+  const [gameRoom, setGameRoom] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [playerColor, setPlayerColor] = useState(null);
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
+  const [availableRooms, setAvailableRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [newMessageText, setNewMessageText] = useState('');
   const { placeBet, distributeWinnings } = useBetting();
 
@@ -43,7 +40,7 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
         }
       }
     };
-    
+
     signIn();
   }, []);
 
@@ -56,7 +53,7 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
           // Subscribe to specific game room
           const unsubscribe = subscribeToGameRoom(gameRoomId, (room) => {
             setGameRoom(room);
-            
+
             // Determine player color based on user ID
             if (auth.currentUser) {
               if (room.blackPlayerId === auth.currentUser.uid) {
@@ -65,10 +62,10 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
                 setPlayerColor('white');
               }
             }
-            
+
             setLoading(false);
           });
-          
+
           return () => unsubscribe();
         } else {
           // Get available rooms
@@ -82,7 +79,7 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
         setLoading(false);
       }
     };
-    
+
     loadGameData();
   }, [gameRoomId]);
 
@@ -92,13 +89,13 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
       const unsubscribe = subscribeToMessages(gameRoomId, (newMessages) => {
         setMessages(newMessages);
       });
-      
+
       return () => unsubscribe();
     }
   }, [gameRoomId]);
 
   // Create a new game room
-  const createRoom = async (betAmount: number = 0, gameType: 'checkers' | 'tetris' = 'checkers') => {
+  const createRoom = async (betAmount = 0, gameType = 'checkers') => {
     setLoading(true);
     try {
       const roomId = await createGameRoom(betAmount, gameType);
@@ -117,7 +114,7 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
   };
 
   // Join an existing game room
-  const joinRoom = async (roomId: string) => {
+  const joinRoom = async (roomId) => {
     setLoading(true);
     try {
       const success = await joinGameRoom(roomId);
@@ -137,7 +134,7 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
   };
 
   // Handle clicking on a square for moves
-  const handleSquareClick = async (row: number, col: number) => {
+  const handleSquareClick = async (row, col) => {
     if (!gameRoom || !playerColor || playerColor !== gameRoom.currentTurn) {
       return; // Not this player's turn
     }
@@ -161,18 +158,18 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
       }
 
       // If valid move, move the piece
-      const isValidMove = validMoves.some(move => 
+      const isValidMove = validMoves.some(move =>
         move.row === row && move.col === col
       );
 
       if (isValidMove) {
         // Deep clone the board
-        const newBoard = JSON.parse(JSON.stringify(gameRoom.board)) as Board;
+        const newBoard = JSON.parse(JSON.stringify(gameRoom.board));
         const piece = newBoard[selectedPiece.row][selectedPiece.col];
-        
+
         // Check if this is a capture move
         const isCapture = Math.abs(row - selectedPiece.row) === 2;
-        
+
         // Move the piece
         newBoard[selectedPiece.row][selectedPiece.col] = null;
         newBoard[row][col] = piece;
@@ -185,18 +182,18 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
         }
 
         // Check for king promotion
-        if ((piece?.color === 'black' && row === 7) || 
+        if ((piece?.color === 'black' && row === 7) ||
             (piece?.color === 'white' && row === 0)) {
           newBoard[row][col] = { ...piece, type: 'king' };
         }
 
         // Check for win condition
         const winner = checkWinCondition(newBoard);
-        
+
         // Update the game state in Firestore
         const nextTurn = gameRoom.currentTurn === 'black' ? 'white' : 'black';
         await makeMove(gameRoom.id, newBoard, nextTurn, winner);
-        
+
         setSelectedPiece(null);
         setValidMoves([]);
       }
@@ -204,9 +201,9 @@ export const useMultiplayerGame = (gameRoomId?: string) => {
   };
 
   // Send a chat message
-  const sendChatMessage = async (text: string) => {
+  const sendChatMessage = async (text) => {
     if (!gameRoomId || !text.trim()) return;
-    
+
     try {
       await sendMessage(gameRoomId, text, `Player (${playerColor})`);
       setNewMessageText('');

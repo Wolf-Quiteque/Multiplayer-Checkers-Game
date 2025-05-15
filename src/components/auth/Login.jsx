@@ -13,32 +13,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { auth } from '@/lib/firebase'; // Import Firebase auth instance
-import { 
-  signInWithEmailAndPassword, 
-  GoogleAuthProvider, 
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
   signInWithPopup,
-  UserCredential
 } from 'firebase/auth';
 import { useEffect } from 'react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  
+
   // Prevent SSR issues with Firebase
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   // Don't render anything during SSR to avoid Firebase errors
   if (!isClient) {
     return <div className="p-4 border rounded animate-pulse">Loading authentication...</div>;
   }
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -47,10 +46,10 @@ export default function Login() {
       if (!auth.app.options.apiKey) {
          throw new Error("Firebase is not configured. Please add credentials to .env.local");
       }
-      const userCredential: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('Email login successful:', userCredential.user);
       // TODO: Redirect user or update UI state upon successful login
-    } catch (err: any) {
+    } catch (err) {
       console.error("Email login error:", err);
       setError(err.message || 'Failed to login with email.');
     } finally {
@@ -67,11 +66,11 @@ export default function Login() {
       if (!auth.app.options.apiKey) {
          throw new Error("Firebase is not configured. Please add credentials to .env.local");
       }
-      const result: UserCredential = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
       console.log('Google login successful:', result.user);
        // TODO: Handle first login - check if user exists in Firestore, if not, create profile and credit $10,000
       // TODO: Redirect user or update UI state upon successful login
-    } catch (err: any) {
+    } catch (err) {
       console.error("Google login error:", err);
        // Handle specific errors like popup closed by user
        if (err.code === 'auth/popup-closed-by-user') {

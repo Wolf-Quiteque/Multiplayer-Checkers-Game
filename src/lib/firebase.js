@@ -1,8 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import type { Auth } from 'firebase/auth';
-import type { Firestore } from 'firebase/firestore';
+
 
 // Your web app's Firebase configuration
 // These values will be pulled from environment variables
@@ -17,25 +16,25 @@ const firebaseConfig = {
 
 // Initialize Firebase with mock implementations for development
 let app;
-let auth: Auth;
-let db: Firestore;
+let auth;
+let db;
 
 // Create development mock to circumvent Firebase errors
 const createMocks = () => {
   console.warn("Using Firebase mock implementation for development");
-  
-  const mockApp = { 
+
+  const mockApp = {
     name: "[DEFAULT]",
     options: { ...firebaseConfig }
   };
-  
+
   const mockAuth = {
     currentUser: null,
     app: mockApp,
-  } as unknown as Auth;
-  
-  const mockDb = {} as unknown as Firestore;
-  
+  };
+
+  const mockDb = {};
+
   return { app: mockApp, auth: mockAuth, db: mockDb };
 };
 

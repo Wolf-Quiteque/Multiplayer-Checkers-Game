@@ -2,9 +2,9 @@
 
 import { MultiplayerGame } from '@/components/game/MultiplayerGame';
 import Link from 'next/link';
-export default async function Page({ params }: { params: { roomId: string } }) {
+export default async function Page({ params }) {
   const { roomId } = params;
-  
+
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
@@ -21,14 +21,14 @@ export default async function Page({ params }: { params: { roomId: string } }) {
         </div>
         <div className="w-36 hidden sm:block order-3"></div> {/* Spacer for centering */}
       </div>
-      
+
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6 border border-blue-100 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
           <p className="font-medium text-blue-800">Online Match</p>
         </div>
       </div>
-      
+
       <MultiplayerGame gameRoomId={roomId} />
     </div>
   );

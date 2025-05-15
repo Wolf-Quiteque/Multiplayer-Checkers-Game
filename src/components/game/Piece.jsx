@@ -2,13 +2,9 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import type { Piece as PieceType } from '@/types/game';
 
-type PieceProps = {
-  piece: PieceType;
-}
 
-export const Piece = ({ piece }: PieceProps) => {
+export const Piece = ({ piece }) => {
   const isKing = piece.type === 'king';
   const isBlack = piece.color === 'black';
 

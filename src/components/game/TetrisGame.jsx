@@ -45,10 +45,10 @@ export default function TetrisGame() {
   const [hasBet, setHasBet] = useState(false);
   const [isGameRunning, setIsGameRunning] = useState(false);
 
-  const rotatePiece = (pieceShape: number[][]) => {
+  const rotatePiece = (pieceShape) => {
     const rows = pieceShape.length;
     const cols = pieceShape[0].length;
-    const rotatedPiece: number[][] = Array(cols).fill(null).map(() => Array(rows).fill(0));
+    const rotatedPiece = Array(cols).fill(null).map(() => Array(rows).fill(0));
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
@@ -59,7 +59,7 @@ export default function TetrisGame() {
     return rotatedPiece;
   };
 
-  const canMove = (newBoard: number[][], pieceShape: number[][], position: { x: number; y: number }) => {
+  const canMove = (newBoard, pieceShape, position) => {
     for (let y = 0; y < pieceShape.length; y++) {
       for (let x = 0; x < pieceShape[y].length; x++) {
         if (pieceShape[y][x] !== 0) {
@@ -75,7 +75,7 @@ export default function TetrisGame() {
     return true;
   };
 
-  const mergePiece = (newBoard: number[][], piece: { shape: number[][]; color: string }, position: { x: number; y: number }) => {
+  const mergePiece = (newBoard, piece, position) => {
     for (let y = 0; y < piece.shape.length; y++) {
       for (let x = 0; x < piece.shape[y].length; x++) {
         if (piece.shape[y][x] !== 0) {
@@ -86,7 +86,7 @@ export default function TetrisGame() {
     return newBoard;
   };
 
-  const clearLines = (newBoard: number[][]) => {
+  const clearLines = (newBoard) => {
     let linesCleared = 0;
     const boardAfterClear = newBoard.filter(row => row.some(cell => cell === 0));
     linesCleared = 20 - boardAfterClear.length;
@@ -123,7 +123,7 @@ export default function TetrisGame() {
     }
   }, [gameOver, hasBet, isGameRunning, board, piece, position, score]);
 
-  const moveHorizontally = (direction: number) => {
+  const moveHorizontally = (direction) => {
     if (!gameOver && hasBet && isGameRunning) {
       const newPosition = { ...position, x: position.x + direction };
       if (canMove(board, piece.shape, newPosition)) {
@@ -154,7 +154,7 @@ export default function TetrisGame() {
     return () => clearInterval(intervalId);
   }, [moveDown, hasBet, isGameRunning]);
 
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+  const handleKeyPress = useCallback((e) => {
     if (gameOver || !hasBet || !isGameRunning) return;
     switch (e.key) {
       case 'ArrowLeft': moveHorizontally(-1); break;
@@ -227,7 +227,7 @@ export default function TetrisGame() {
       <div className="border-4 border-blue-200 bg-blue-50 p-2 rounded" style={{ width: '200px', height: '400px' }}>
         {renderBoard().map((row, y) => (
           <div key={y} className="flex">
-            {row.map((cell: number | string, x: number) => (
+            {row.map((cell, x) => (
               <div
                 key={x}
                 className={`w-8 h-8 border ${cell !== 0 ? (typeof cell === 'string' ? cell : 'bg-blue-500') : 'bg-white'}`}

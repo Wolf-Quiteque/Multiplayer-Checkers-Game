@@ -1,24 +1,15 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState } from 'react';
 
-type BettingContextType = {
-  playerBalance: number;
-  opponentBalance: number;
-  currentBet: number;
-  placeBet: (amount: number) => void;
-  distributeWinnings: (winner: 'player' | 'opponent') => void;
-  resetBetting: () => void;
-};
+const BettingContext = createContext(undefined);
 
-const BettingContext = createContext<BettingContextType | undefined>(undefined);
-
-export function BettingProvider({ children }: { children: ReactNode }) {
+export function BettingProvider({ children }) {
   const [playerBalance, setPlayerBalance] = useState(10000); // Starting balance
   const [opponentBalance, setOpponentBalance] = useState(10000);
   const [currentBet, setCurrentBet] = useState(0);
 
-  const placeBet = (amount: number) => {
+  const placeBet = (amount) => {
     if (playerBalance >= amount && opponentBalance >= amount) {
       setPlayerBalance(b => b - amount);
       setOpponentBalance(b => b - amount);
@@ -26,10 +17,10 @@ export function BettingProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const distributeWinnings = (winner: 'player' | 'opponent') => {
+  const distributeWinnings = (winner) => {
     const houseFee = currentBet * 0.10;
     const winnings = currentBet - houseFee;
-    
+
     if (winner === 'player') {
       setPlayerBalance(b => b + winnings);
     } else {

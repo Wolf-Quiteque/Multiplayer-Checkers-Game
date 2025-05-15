@@ -3,15 +3,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-interface SquareProps {
-  row: number;
-  col: number;
-  isBlack: boolean;
-  isSelected: boolean;
-  isValidMove: boolean;
-  onClick: () => void;
-  children?: React.ReactNode;
-}
 
 export const Square = ({
   isBlack,
@@ -19,7 +10,7 @@ export const Square = ({
   isValidMove,
   onClick,
   children
-}: SquareProps) => {
+}) => {
   return (
     <div
       onClick={onClick}
